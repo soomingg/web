@@ -2,6 +2,10 @@
     #div_books img {
         cursor:  pointer;
     }
+    #div_books .bi-cart{
+        cursor: pointer;
+        color: green;
+    }
 </style>
 <div class="row my-5">
     <div class="col">
@@ -10,7 +14,7 @@
                 <div class="input-group">
                 <input name="query" class="form-control" value="자바">
                 <button class="btn btn-primary">검색</button>
-            </div>
+        </div>
 
             </form>
 
@@ -36,9 +40,11 @@
           </div>
           <div class="card-footer">
             {{fmtPrice price}}
+            <i class="bi bi-cart float-end" book="{{book @this}}"></i>
           </div>   
         </div>
     </div>
+   
     <%-include('books/modal.ejs')%>
     {{/each}}
 </script>
@@ -58,13 +64,41 @@
         if(price) return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
 
     });
+    Handlebars.registerHelper("book",function(book){
+        return JSON.stringify(book);
+    });
 </script>
 
 
 
-<script>
+<script type="module">
+    import { app } from "/javascripts/firebaseInit.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+    const db = getDatabase(app);
+
     let query=$(frm.query).val();
     let page=1;
+
+    //장바구니 아이콘을 클릭했을때
+    $("#div_books").on("click", ".bi-cart", async function(){
+        if(!sessionStorage.getItem("email")){
+            location.href="/users/login";
+        }else{
+            //장바구니에 상품정보 저장
+            const book=JSON.parse($(this).attr("book"));
+            console.log(book);
+            const ref_book = `cart/${sessionStorage.getItem('uid')}/${book.isbn}`;
+            //장바구니 도서가 있는지 체크
+            const snapshot = await get(ref(db, ref_book));
+            if(snapshot.val()){
+                alert("이미 등록된 도서입니다.")
+            }else{
+                if(!confirm("장바구니에 저장하실래요?")) return;
+                alert("장바구니에 추가되었습니다.");
+                set(ref(db, ref_book), book);
+            }
+        }
+    });
     //이미지를 클랙했을때
     $("#div_books").on("click","img", function(){
         let index=$(this).attr("index");
