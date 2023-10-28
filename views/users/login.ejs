@@ -46,10 +46,16 @@
             signInWithEmailAndPassword(auth, email, password).then(success=>{
                 //로그인 성공
                 console.log(success);
+                //클라이언트 세션에 저장
                 sessionStorage.setItem("email",email);
                 sessionStorage.setItem("uid",success.user.uid);
                 alert("로그인에 성공하셨습니다."); //f12에서 application에 세션스토리지에서 확인가능
-                location.href="/";
+
+                if(sessionStorage.getItem("target")){
+                    location.href=sessionStorage.getItem("target");
+                }else{
+                    location.href="/";
+                }
             }).catch(error=>{
                 alert(error.message);
             });

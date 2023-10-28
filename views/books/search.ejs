@@ -1,6 +1,5 @@
 <div class="row my-5">
     <div class="col">
-        
         <div class="row mb-2 justify-content-end">
             <form name="frm" class="col-6 col-md-4 col-lg-3">
                 <div class="input-group">
@@ -64,6 +63,7 @@
 
     });
 
+    //이벤트가 실행되지 않도록 막아줌
     $(frm).on("submit",function(e){
         e.preventDefault();
         page=1;
