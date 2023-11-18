@@ -3,25 +3,26 @@
     <form name="frm">
         <input name="title" placeholder="제목을 입력하세요." class="form-control mb-2">
         <textarea name="body" rows="10" class="form-control" placeholder="내용을 입력하세요."></textarea>
-        <div class="text-center my-3">
-            <button class="btn btn-primary px-5">등록</button>
+        <div class="text-end my-3">
+            <button class="btn btn-primary px-5" type="submit">등록</button>                     <!--form 안에서 type="submit" (뻔쩍) 생략 가능-->
             <button class="btn btn-secondary px-5" type="reset">취소</button>
         </div>
     </form>
 </div>
 
-<script type="module">
+<script type="module">                           // import 하려면 type이 module 이어야 함
+
     import { app } from "/javascripts/firebaseInit.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
     const db = getFirestore(app);
 
     $(frm).on("submit", async function(e){
-        e.preventDefault();
+        e.preventDefault();                     // 뻔쩍 안함
         const title=$(frm.title).val();
         const body=$(frm.body).val();
         if(title==""){
             alert("제목을 입력하세요!");
-            $(frm.title).focus();
+            $(frm.title).focus();                // 커서가 제목창에서 깜빡임
             return;
         }
         if(body==""){
@@ -32,10 +33,10 @@
         if(confirm("게시글을 등록하실래요?")){
             //게시글 등록
             const email=sessionStorage.getItem("email");
-            const date=moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+            const date=moment(new Date()).format("YYYY-MM-DD HH:mm:ss");          // index.ejs에 moment library 입력함
             const data = {title, body, email, date};
             //console.log(data);
-            await addDoc(collection(db, "posts"), data);
+            await addDoc(collection(db, "posts"), data);                          // 위에 import 해줌
             alert("게시글이 등록되었습니다");
             location.href="/posts";
         }
