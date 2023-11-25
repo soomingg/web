@@ -1,0 +1,44 @@
+<div class="my-5">
+    <h1 class="text-center mb-5"><%=title%></h1>
+    <div id="div_post"></div>
+</div>
+
+<script id="temp_post" type="x-handlebar-template">
+    <form name="frm">
+        <input value="{{title}}"
+            name="title" placeholder="제목을 입력하세요." class="form-control mb-2">
+        <textarea name="body" rows="10" class="form-control" placeholder="내용을 입력하세요.">{{body}}</textarea>
+        <div class="text-center my-3">
+            <button class="btn btn-secondary px-5" type="submit">수정</button>                     <!--form 안에서 type="submit" (뻔쩍) 생략 가능-->
+            <button class="btn btn-danger px-5" type="reset">취소</button>
+        </div>
+    </form>
+</script>
+
+<script type="module">
+    import { app } from "/javascripts/firebaseInit.js";
+    import { getFirestore, doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    const db=getFirestore(app);
+
+    const id="<%=id%>";
+    const snapshot= await getDoc(doc(db, `posts/${id}`));
+    //console.log(snapshot.data());
+    const post=snapshot.data();
+
+    const temp=Handlebars.compile($("#temp_post").html());
+    $("#div_post").html(temp(post));
+
+    $(frm).on("submit", async function(e){              // submit 될때
+        e.preventDefault();
+        if(confirm(`${id}번 게시글을 수정하실래요?`)) {
+            //수정하기
+            await setDoc(doc(db, `posts/${id}`), {
+                ...post,                                  // . . . 은 앞에있는 값 가져옴, 누락하면 밑의 title, body만 업데이트 됨
+                title:$(frm.title).val(),
+                body:$(frm.body).val()
+            });
+            alert("수정완료!");
+            location.href="/posts";
+        }
+    });
+</script>
